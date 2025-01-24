@@ -1,0 +1,955 @@
+schemaVersion: 3
+meta:
+  sourceVersionId: 9f823624-1e95-4029-aad8-3f2762cdcbcf # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
+  description: null
+  projectId: ba376ee8-348d-4a95-8798-d52c6c5f999b # DO NOT CHANGE - Unique ID of the project from which this file was generated
+  title: 3601/3602 Final Project
+  timezone: null
+  appTheme: SYS_PREF
+  codeLanguage: PYTHON
+  status: null
+  categories: []
+  castDecimalsDefault: true
+  logicQueryCacheTimeout: null
+  publishedQueryCacheTimeout: null
+  hexType: PROJECT
+  allowExecutionReordering: true
+  prerunApp: false
+  cachePublishedAppState: true
+  refreshStalePublishedApp: false
+  autoRerunApp: true
+projectAssets:
+  dataConnections: []
+  envVars: []
+  secrets: []
+sharedAssets:
+  secrets: []
+  vcsPackages: []
+  dataConnections:
+    - dataConnectionId: 2514022c-5a76-4e21-bdc1-91efddb5e8ac # Snowflake (snowflake)
+  externalFileIntegrations: []
+cells:
+  - cellType: CODE
+    cellId: 8e27a85e-bee2-4d15-96db-cee96cc4f51a # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Import Libraries
+    config:
+      source: |-
+        import pandas as pd
+        import geopandas as gpd
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        from scipy import stats
+        from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+        from sklearn.model_selection import train_test_split
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.tree import DecisionTreeRegressor
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.tree import DecisionTreeClassifier
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.ensemble import GradientBoostingRegressor
+        from sklearn.model_selection import cross_val_score
+        from sklearn.model_selection import GridSearchCV
+        import numpy as np
+  - cellType: CODE
+    cellId: c2ba5515-96fb-44ea-8b49-076823bf0617 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        #visualize all factors 
+        #find correlation between larc and factors (graphs)
+  - cellType: CODE
+    cellId: e85c3bd9-0cf6-4c4c-8670-41942bceb579 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Code 3
+    config:
+      source: |-
+        #load dataset
+
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+        df
+  - cellType: CODE
+    cellId: 83bc6aae-b044-4e0b-98fe-e84e0a81745e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: df.shape
+  - cellType: CODE
+    cellId: 2f5363a1-5cfa-4230-9245-5e9854d55074 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: df.head
+  - cellType: CODE
+    cellId: d7187d21-7365-42b6-b57f-eaa0990562c2 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: df.info()
+  - cellType: CODE
+    cellId: 4f3cfb44-eb5b-45d8-a300-b21bab2e165c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        #columns to drop
+        drop = ['agePct12t21','agePct12t29','agePct16t24','agePct65up','whitePerCap','HispPerCap','blackPerCap','indianPerCap','AsianPerCap','OtherPerCap','NumInShelters', 'NumStreet','countyCode', 'communityCode','fold','householdsize','numbUrban','pctUrban', 'pctWWage','pctWFarmSelf','pctWInvInc','pctWSocSec','pctWPubAsst','pctWRetire','medFamInc','perCapInc','PctPopUnderPov', 'PctLess9thGrade','PctNotHSGrad','PctBSorMore','PctEmplManu','PctEmplProfServ','PctOccupManu','PctOccupMgmtProf','MalePctDivorce','MalePctNevMarr','FemalePctDiv','TotalPctDiv','PersPerFam','PctFam2Par','PctKids2Par','PctYoungKids2Par','PctTeen2Par','PctWorkMomYoungKids','PctWorkMom','NumKidsBornNeverMar','PctKidsBornNeverMar','NumImmig','PctImmigRecent','PctImmigRec5','PctImmigRec8','PctImmigRec10','PctRecentImmig','PctRecImmig5','PctRecImmig8','PctRecImmig10','PctSpeakEnglOnly','PctNotSpeakEnglWell','PctLargHouseFam','PctLargHouseOccup','PersPerOccupHous','PersPerOwnOccHous','PersPerRentOccHous','PctPersOwnOccup','PctPersDenseHous','PctHousLess3BR','MedNumBR','HousVacant','PctHousOccup','PctHousOwnOcc','PctVacantBoarded','PctVacMore6Mos','MedYrHousBuilt','PctHousNoPhone','PctWOFullPlumb','OwnOccLowQuart','OwnOccMedVal','OwnOccHiQuart','OwnOccQrange', 'RentLowQ','RentMedian','RentHighQ','RentQrange','MedRent','MedRentPctHousInc','MedOwnCostPctInc','MedOwnCostPctIncNoMtg','PctForeignBorn','PctBornSameState','PctSameHouse85','PctSameCity85','PctSameState85','LemasSwornFT','LemasSwFTPerPop','LemasSwFTFieldOps','LemasSwFTFieldPerPop','LemasTotalReq','LemasTotReqPerPop','PolicReqPerOffic','PolicPerPop', 'RacialMatchCommPol', 'PctPolicWhite', 'PctPolicBlack', 'PctPolicHisp','PctPolicAsian','PctPolicMinor','OfficAssgnDrugUnits','NumKindsDrugsSeiz','PolicAveOTWorked','LandArea','PopDens','PctUsePubTrans','PolicCars','PolicOperBudg','LemasPctPolicOnPatr','LemasGangUnitDeploy','LemasPctOfficDrugUn','PolicBudgPerPop','murders','murdPerPop','rapes','rapesPerPop','robberies','robbbPerPop','assaults','assaultPerPop','burglaries','burglPerPop', 'autoTheft','autoTheftPerPop','arsons','arsonsPerPop','ViolentCrimesPerPop','nonViolPerPop']
+
+        # updated dataset
+        df1 = df.drop(columns = drop)
+
+        df1
+  - cellType: CODE
+    cellId: 91e8e9cd-fea4-4a85-a73a-c43c98bf5fa8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # group states by region 
+        df1['region'] = df1['state'].apply(lambda state: 'Northeast' if state in ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'] 
+                                           else 'Southeast' if state in ['DE', 'MD', 'VA', 'WV', 'KY', 'TN', 'NC', 'SC', 'GA', 'FL', 'AL', 'MS', 'AR', 'LA', 'DC'] 
+                                           else 'Midwest' if state in ['OH', 'MI', 'IN', 'IL', 'WI', 'MO', 'IA', 'MN', 'ND', 'SD', 'NE', 'KS'] 
+                                           else 'Southwest' if state in ['TX', 'OK', 'NM', 'AZ'] 
+                                           else 'West' if state in ['CO', 'WY', 'MT', 'ID', 'UT', 'NV', 'CA', 'OR', 'WA', 'AK', 'HI']
+                                           else '')
+
+        df1
+  - cellType: CODE
+    cellId: 5a4caf64-65df-494b-982d-dbd114cdb8d4 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        states = gpd.read_file("cb_2018_us_state_500k.shp")
+        states = states[~states.STATEFP.isin(["72", "69", "60", "66", "78"])]
+        states = states.to_crs("ESRI:102003")
+
+        def translate_geometries(df, x, y, scale, rotate):
+            df.loc[:, "geometry"] = df.geometry.translate(yoff=y, xoff=x)
+            center = df.dissolve().centroid.iloc[0]
+            df.loc[:, "geometry"] = df.geometry.scale(xfact=scale, yfact=scale, origin=center)
+            df.loc[:, "geometry"] = df.geometry.rotate(rotate, origin=center)
+            return df
+
+        def adjust_maps(df):
+            df_main_land = df[~df.STATEFP.isin(["02", "15"])]
+            df_alaska = df[df.STATEFP == "02"]
+            df_hawaii = df[df.STATEFP == "15"]
+
+            df_alaska = translate_geometries(df_alaska, 1300000, -4900000, 0.5, 32)
+            df_hawaii = translate_geometries(df_hawaii, 5400000, -1500000, 1, 24)
+
+            return pd.concat([df_main_land, df_alaska, df_hawaii])
+
+        states = adjust_maps(states)
+
+        # Define regions
+        region_mapping = {
+            'Northeast': ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'],
+            'Southeast': ['DE', 'MD', 'VA', 'WV', 'KY', 'TN', 'NC', 'SC', 'GA', 'FL', 'AL', 'MS', 'AR', 'LA', 'DC'],
+            'Midwest': ['OH', 'MI', 'IN', 'IL', 'WI', 'MO', 'IA', 'MN', 'ND', 'SD', 'NE', 'KS'],
+            'Southwest': ['TX', 'OK', 'NM', 'AZ'],
+            'West': ['CO', 'WY', 'MT', 'ID', 'UT', 'NV', 'CA', 'OR', 'WA', 'AK', 'HI']
+        }
+
+        # Map regions to states
+        state_to_region = {state: region for region, states in region_mapping.items() for state in states}
+        states['region'] = states['STUSPS'].map(state_to_region)
+
+        # Create the plot
+        fig, ax = plt.subplots(1, 1, figsize=(20, 12))  # Set a larger figure size
+        states.plot(column='region', cmap='tab10', legend=True, ax=ax)  # Plot regions with color
+
+        for _, row in states.iterrows():
+            state_abbr = row['STUSPS']
+            # Get the centroid of the state
+            x, y = row['geometry'].centroid.coords[0]
+            ax.text(x, y, state_abbr, fontsize=10, ha='center', color='black')
+
+        # Turn off axis
+        ax.set_facecolor('none')  # Set the background to white
+        ax.axis('off')
+
+        plt.savefig('us_states_by_region.png', transparent=True)
+
+
+        plt.show()
+  - cellType: CODE
+    cellId: b0e7dcac-b60c-414d-b353-4c0ec2040389 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # number of columns and rows in dataset after cleaning 
+        df1.shape
+  - cellType: TEXT
+    cellId: 686af98c-e133-4624-bb2a-0700233c0efc # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: "Looking at the percentage of larcenies (our target variable) as compared to the rest of the crimes reported in this dataset:"
+  - cellType: CODE
+    cellId: 04968747-6bc5-4f1d-a958-7c519ffd42da # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # Calculate total larcenies and total crimes across all rows
+        df["total_crimes"] = (
+            df[
+                [
+                    "burglaries",
+                    "larcenies",
+                    "autoTheft",
+                    "arsons",
+                    "rapes",
+                    "robberies",
+                    "assaults",
+                    "murders",
+                ]
+            ]
+            .apply(pd.to_numeric, errors="coerce")
+            .sum(axis=1)
+        )
+
+        # Sum up all larcenies and total crimes across all cities
+        total_larcenies = pd.to_numeric(df["larcenies"], errors="coerce").sum()
+        total_crimes = df["total_crimes"].sum()
+
+        # Calculate percentage of larcenies
+        larceny_percentage = (total_larcenies / total_crimes) * 100
+
+        print(f"Larceny Percentage: {larceny_percentage:.2f}%")
+  - cellType: CODE
+    cellId: d933cc49-93b6-4b9f-b2b7-3ac4c36b8684 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # Bar graph to display the code above
+
+        crime_totals = df[
+            ['burglaries', 'larcenies', 'autoTheft', 'arsons', 'rapes', 'robberies', 'assaults', 'murders']
+        ].apply(pd.to_numeric, errors='coerce').sum()
+
+        # Create a bar graph
+        plt.figure(figsize=(10, 6))
+        crime_totals.plot(kind='bar', color='maroon')
+
+        # Add title and labels
+        plt.title('Total Counts of Different Crime Types', fontsize=16)
+        plt.xlabel('Crime Type', fontsize=12)
+        plt.ylabel('Total Count', fontsize=12)
+
+        # Show the graph
+        plt.xticks(rotation=45)
+        plt.show()
+  - cellType: TEXT
+    cellId: b6636425-26c0-4bf4-bc19-dff8d75ec022 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: The US region with the highest larceny rates per population is the Southeast.
+  - cellType: CODE
+    cellId: aa549c4f-7dba-478a-b271-90421d7a41eb # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # check for duplicate rows
+        df1.duplicated().any()
+  - cellType: CODE
+    cellId: d8c5f062-59a5-450d-b8c3-a58a4d493027 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: df1.info()
+  - cellType: CODE
+    cellId: 94584c86-6eed-4fe2-b738-565f207630ee # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ## FIGURE 1
+
+        #heat map of larceny & factors 
+        var = ["larcPerPop", "NumUnderPov", "PctUnemployed", 
+                     "racePctWhite", "racepctblack", "racePctAsian", 
+                     "racePctHisp", "medIncome"]
+
+        #correlation matrix
+        corr_matrix = df1[var].corr()
+
+        # plot heatmap
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(corr_matrix, cmap='viridis', annot=True)
+        plt.show() #display figure
+  - cellType: TEXT
+    cellId: bfed478e-4cd6-44e3-808d-89b26713ab63 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: The variables that correlate highest with larcPerPop are PctUnemployed and racepctblack.
+  - cellType: CODE
+    cellId: 9eb1b8cf-e8c0-455e-afd1-c2ec60eb9d39 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        df.plot(x ='larcPerPop', y = 'NumUnderPov')
+        df.plot(x = 'larcPerPop' , y= 'PctUnemployed')
+  - cellType: CODE
+    cellId: 32c89355-be5f-4e93-bbe2-3d42b2a59112 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        df_num = df1.select_dtypes(include = ['float64', 'int64'])
+        df_num.hist(figsize=(16, 20), xlabelsize=8, ylabelsize=8);
+  - cellType: CODE
+    cellId: 81b30a52-2d03-4cf1-9f4e-71bb6a3deb0c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # converting larcPerPop to a numeric column
+        df1['larcPerPop'] = pd.to_numeric(df1['larcPerPop'], errors='coerce')
+
+        # displaying our target variable (larceny per population) in each region
+        larc_per_region = df1.groupby("region")["larcPerPop"].mean()
+        larc_per_region.head()
+  - cellType: TEXT
+    cellId: fe2138bc-7fcd-45f8-b90e-cd288f0e79b4 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: southeast highest, northeast lowest
+  - cellType: CODE
+    cellId: db526649-32f7-43a6-9038-1d9ff380f0bd # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Code 22
+    config:
+      source: |-
+        df1.dropna(subset=['larcPerPop'], inplace=True)
+        pd.options.display.float_format = '{:.3f}'.format
+  - cellType: CODE
+    cellId: db3ef5dc-5260-4471-b3ff-72c7d17c15ec # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # function to calculate MSE, MAE, R^2, and the score for training/testing sets
+        def eval_model(model_type, y_train, y_test, train_pred, test_pred):
+
+            train_mse = mean_squared_error(y_train, train_pred)
+            test_mse = mean_squared_error(y_test, test_pred)
+
+            train_mae = mean_absolute_error(y_train, train_pred)
+            test_mae = mean_absolute_error(y_test, test_pred)
+
+            train_r2 = r2_score(y_train, train_pred)
+            test_r2 = r2_score(y_test, test_pred)
+
+            results = {
+                'Model Type': model_type, 
+                'Training MSE': train_mse,
+                'Testing MSE': test_mse, 
+                'Training MAE': train_mae, 
+                'Testing MAE': test_mae,
+                'Training R²': train_r2,
+                'Testing R²': test_r2,
+            }
+            df = pd.DataFrame([results])
+            return df
+  - cellType: CODE
+    cellId: a28a756c-dae7-4c42-bbef-d91cd64fc821 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        df_mw = df1.loc[df1['region'] == 'Midwest'].reset_index(drop=True)
+        df_ne = df1.loc[df1['region'] == 'Northeast'].reset_index(drop=True)
+        df_sw = df1.loc[df1['region'] == 'Southwest'].reset_index(drop=True)
+        df_se = df1.loc[df1['region'] == 'Southeast'].reset_index(drop=True)
+        df_w = df1.loc[df1['region'] == 'West'].reset_index(drop=True)
+
+        from sklearn.model_selection import RandomizedSearchCV
+
+        def calc_depth(X_train, y_train, model, max_depth_range=range(1, 11)):
+            """Find optimal max_depth using RandomizedSearchCV."""
+            param_dist = {'max_depth': max_depth_range}
+            random_search = RandomizedSearchCV(estimator=model, param_distributions=param_dist, 
+                                               n_iter=len(max_depth_range), cv=3, scoring='r2', random_state=99)
+            random_search.fit(X_train, y_train)
+            return random_search.best_params_['max_depth']
+
+        def create_models(df):
+            # Preparing features and target variable
+            X = df[['population', 'medIncome', 'NumUnderPov', 'racepctblack', 'racePctWhite', 
+                    'racePctAsian', 'racePctHisp', 'PctUnemployed', 'PctEmploy']]
+            y = df['larcPerPop']
+
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=99)
+
+            # Find optimal max_depth for CART
+            cart_depth = calc_depth(X_train, y_train, DecisionTreeRegressor(random_state=99))
+
+            # Find optimal max_depth for Random Forest
+            rf_depth = calc_depth(X_train, y_train, RandomForestRegressor(random_state=99))
+
+            # Find optimal max_depth for Gradient Boosting
+            gb_depth = calc_depth(X_train, y_train, GradientBoostingRegressor(random_state=99))
+
+            # Train and evaluate CART
+            cart = DecisionTreeRegressor(random_state=99, max_depth=cart_depth)
+            cart.fit(X_train, y_train)
+            cart_train_pred = cart.predict(X_train)
+            cart_test_pred = cart.predict(X_test)
+            cart_df = eval_model(f"CART ({df['region'].iloc[0]})", y_train, y_test, cart_train_pred, cart_test_pred)
+
+            # Train and evaluate Random Forest
+            rf = RandomForestRegressor(random_state=99, max_depth=rf_depth, n_estimators=100)
+            rf.fit(X_train, y_train)
+            rf_train_pred = rf.predict(X_train)
+            rf_test_pred = rf.predict(X_test)
+            rf_df = eval_model(f"Random Forest ({df['region'].iloc[0]})", y_train, y_test, rf_train_pred, rf_test_pred)
+
+            # Train and evaluate Gradient Boosted Regressor
+            gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=gb_depth, random_state=99)
+            gb.fit(X_train, y_train)
+            gb_train_pred = gb.predict(X_train)
+            gb_test_pred = gb.predict(X_test)
+            gb_df = eval_model(f"Gradient Boosted ({df['region'].iloc[0]})", y_train, y_test, gb_train_pred, gb_test_pred)
+
+            # Combine model evaluations
+            models_df = pd.concat([cart_df, rf_df, gb_df])
+            return models_df
+  - cellType: CODE
+    cellId: 8a0429e8-3f1f-47a1-90f0-f86137a8d125 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # baseline model
+        mean_larcPerPop = df1['larcPerPop'].mean()
+        predicted_values = [mean_larcPerPop] * len(df1)
+
+        baseline_df = eval_model("Baseline", df1['larcPerPop'], df1['larcPerPop'],
+            predicted_values, predicted_values)
+
+        # creating CART and Random Forest models for each region using the create_models function
+        models_mw = create_models(df_mw)
+        models_ne = create_models(df_ne)
+        models_sw = create_models(df_sw)
+        models_se = create_models(df_se)
+        models_w = create_models(df_w)
+  - cellType: CODE
+    cellId: 29d19b88-f899-4fd9-be7d-0b49eecdc264 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        
+        results_df = pd.concat([baseline_df, models_mw, models_ne, models_sw, models_se, models_w]).sort_values(by='Model Type', ascending=True)
+        results_df
+  - cellType: CODE
+    cellId: cc01b9ff-0c69-43f3-9f33-ce7546737279 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: df1.info()
+  - cellType: CODE
+    cellId: 653a05fa-ce36-49f5-99d4-7a7d4f87ceab # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # function to assign colors based on the model type
+        def get_color(model_type):
+            if 'Baseline' in model_type:
+                return 'purple'
+            elif 'CART' in model_type:
+                return 'orange'
+            elif 'Random Forest' in model_type:
+                return 'teal'
+            else:
+                return 'gray'  # Default color for unrecognized types
+
+        # apply get_color to a new column in df
+        results_df['Color'] = results_df['Model Type'].apply(get_color)
+
+        # set up 3 subplots
+        fig, axes = plt.subplots(3, 1, figsize=(8, 12))
+        plt.subplots_adjust(hspace=0.4)  # Adjust space between plots
+
+        # testing MSE plot
+        results_df = results_df.sort_values(by='Testing MSE', ascending=False)
+        sns.stripplot(x='Testing MSE', y='Model Type', data=results_df, ax=axes[0], size=10,
+            hue='Model Type', palette=results_df.set_index('Model Type')['Color'].to_dict())
+        axes[0].set_title('Dot Plot of Testing MSE')
+        axes[0].invert_xaxis()  # invert the x-axis lower value = better)
+
+        # testing MAE plot
+        results_df = results_df.sort_values(by='Testing MAE', ascending=False)
+        sns.stripplot(x='Testing MAE', y='Model Type', data=results_df, ax=axes[1], size=10,
+            hue='Model Type', palette=results_df.set_index('Model Type')['Color'].to_dict())
+        axes[1].set_title('Dot Plot of Testing MAE')
+        axes[1].invert_xaxis()  # invert the x-axis lower value = better)
+
+        # testing R² plot
+        results_df = results_df.sort_values(by='Testing R²', ascending=False)
+        sns.stripplot(x='Testing R²', y='Model Type', data=results_df, ax=axes[2], size=10,
+            hue='Model Type', palette=results_df.set_index('Model Type')['Color'].to_dict())
+        axes[2].set_title('Dot Plot of Testing R²')
+
+        plt.show()
+  - cellType: CODE
+    cellId: 2bfe9370-4db6-436a-b712-05fd7d96e645 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### FIGURE 1 ###
+
+        # calculate z-scores for larcPerPop to remove outliers
+        z_scores = (df1['larcPerPop'] - df1['larcPerPop'].mean()) / df1['larcPerPop'].std()
+
+        # identify outliers with z-scores above 3 or below -3
+        outliers_z = df1['larcPerPop'][(z_scores > 3) | (z_scores < -3)]
+        df2 = df1[(z_scores <= 3) & (z_scores >= -3)]
+
+        # plot histogram of filtered data
+        plt.figure(figsize=(10, 6))
+        sns.histplot(df2['larcPerPop'], bins=8, kde=True, color="skyblue", edgecolor='black')
+
+        # calculate mean & add line on plot
+        mean = df2['larcPerPop'].mean()
+        plt.axvline(mean, color='red', linestyle='--', label=f'Mean: {mean:.2f}')
+
+        # show plot
+        plt.xlabel('larcPerPop', fontsize=12)
+        plt.ylabel('Frequency', fontsize=12)
+        plt.grid(axis='y')
+        plt.tight_layout()
+        plt.show()
+
+        # define bins and bin labels for larcPerPop
+        labels = [
+            "Very Low",
+            "Low",
+            "Low Moderate",
+            "Moderate",
+            "High Moderate",
+            "High",
+            "Very High",
+            "Severe"]
+
+        df2['larcBinned'] = pd.cut(df2['larcPerPop'], bins=8, labels=labels, right=False)
+
+        # Print the value counts for the binned categories
+        print(df2['larcBinned'].value_counts())
+  - cellType: CODE
+    cellId: a96d9d78-1905-4233-b63c-69d1f8fa1602 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # function to find the best max depth of a model (checking depths 1-20)
+        # def eval_model_depths(
+        #     model_class, X, y, param_name, depth_range, test_size=0.2, random_state=99):
+        #     results = []
+         
+        #     for depth in depth_range:
+        #         # Initialize the model with the current depth value
+        #         model = model_class(**{param_name: depth, 'random_state': random_state})
+                
+        #         # Train the model
+        #         model.fit(X_train, y_train)
+        #         # Make predictions on the test set
+        #         train_pred = model.predict(X_train)
+        #         test_pred = model.predict(X_test)
+
+        #         # Calculate MSE/MAE/R2
+        #         train_mse = mean_squared_error(y_train, train_pred)
+        #         test_mse = mean_squared_error(y_test, test_pred)
+        #         train_mae = mean_absolute_error(y_train, train_pred)
+        #         test_mae = mean_absolute_error(y_test, test_pred)
+        #         train_r2 = r2_score(y_train, train_pred)
+        #         test_r2 = r2_score(y_test, test_pred)
+        #         # Append the depth and MSE to the results
+        #         results.append({
+        #             'Depth': depth, 
+        #             'Train MSE': train_mse,
+        #             'Test MSE': test_mse, 
+        #             'Train MAE': train_mae, 
+        #             'Test MAE': test_mae,
+        #             'Train R²': train_r2,
+        #             'Test R²': test_r2
+        #         })
+
+        #     # Convert the results list to a DataFrame
+        #     results_df = pd.DataFrame(results)
+            
+        #     return results_df
+
+        # depth_range = range(1, 21)
+  - cellType: CODE
+    cellId: 023b7928-8b62-4db6-9f8a-85ad4fdcf067 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # finding best depth for the CART model
+        # eval_model_depths(
+        #     DecisionTreeRegressor, X, y, 'max_depth', depth_range).sort_values(
+        #         by='Test MAE', ascending=True)
+  - cellType: CODE
+    cellId: 134712b7-4c61-45d6-88a6-15a10d31b997 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # CART model
+        # cart_model = DecisionTreeRegressor(random_state=99, max_depth = 5)
+        # cart_model.fit(X_train, y_train)
+        # # making predictions
+        # cart_train_pred = cart_model.predict(X_train)
+        # cart_test_pred = cart_model.predict(X_test)
+        # # model evaluation
+        # cart_df = eval_model("CART", y_train, y_test,
+        #     cart_train_pred, cart_test_pred)
+  - cellType: CODE
+    cellId: a6c4cf91-f9e2-4aa4-bab3-f07c932e2e41 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # C5.0 model
+        ## not sure how to make this (for non-numerical data only?)
+  - cellType: CODE
+    cellId: 35c47b7c-14ac-481f-b845-a4bde18b4fcf # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # finding best depth for the random forest model
+        # results_df = eval_model_depths(
+        #     RandomForestRegressor, X, y, 'max_depth', depth_range).sort_values(
+        #         by='Test MAE', ascending=True)
+  - cellType: CODE
+    cellId: ac32dffa-7857-4169-89a9-b6fd20cb05e7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # random forest model
+        # rf_model = RandomForestRegressor(random_state=99, max_depth = 5)
+        # rf_model.fit(X_train, y_train)
+        # # making predictions
+        # rf_train_pred = rf_model.predict(X_train)
+        # rf_test_pred = rf_model.predict(X_test)
+        # # model evaluation
+        # rf_df = eval_model("Random Forest", y_train, y_test,
+        #     rf_train_pred, rf_test_pred)
+  - cellType: CODE
+    cellId: 0ed29a30-a857-4e7e-98cf-9c801364ac7e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # # generating table of all results
+        # results_df = pd.concat([baseline_df, cart_df, rf_df])
+        # results_df
+
+        # # if C5.0 model is created, change line 2 to the following:
+        # # results_df = pd.concat([baseline_df, cart_df, c50_df, rf_df])
+  - cellType: CODE
+    cellId: 26cff010-85f8-484a-bed5-911a30450858 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        
+        #RANDOM FOREST
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.model_selection import train_test_split, cross_val_score
+        from sklearn.metrics import mean_squared_error, r2_score
+        import pandas as pd
+
+        # Load your dataset
+
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+        df['larcPerPop'] = pd.to_numeric(df['larcPerPop'], errors='coerce')
+        df.dropna(inplace=True)
+
+        # Prepare features and target variable
+        X = df[['population', 'medIncome', 'NumUnderPov', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'PctUnemployed', 'PctEmploy']]
+        y = df['larcPerPop']
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        rf = RandomForestRegressor(n_estimators=100, random_state=42)
+
+        cv_scores = cross_val_score(rf, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        mean_cv_score = -cv_scores.mean()  # Convert to positive MSE
+
+        # Train the model
+        rf.fit(X_train, y_train)
+
+        # Predictions
+        y_train_pred = rf.predict(X_train)
+        y_test_pred = rf.predict(X_test)
+
+        # Evaluate the model
+        mse = mean_squared_error(y_test, y_test_pred)
+        r2 = r2_score(y_test, y_test_pred)
+
+        print(f'Random Forest MSE: {mse}')
+        print(f'Random Forest R²: {r2}')
+        print(f'Mean CV MSE: {mean_cv_score}')
+  - cellType: CODE
+    cellId: 2c92155b-d8dc-481d-8dbd-7e5d78db7d60 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |+
+        import matplotlib.pyplot as plt
+
+        # Plot Actual vs Predicted values for Test Data
+        plt.figure(figsize=(8,6))
+        plt.scatter(y_test, y_test_pred, alpha=0.7, color='blue')
+        plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
+        plt.xlabel('Actual')
+        plt.ylabel('Predicted')
+        plt.show()
+
+  - cellType: CODE
+    cellId: a725e8c9-871c-4d53-aa69-62a35c002bb7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        # Plot feature importance
+        import numpy as np
+
+        feature_importances = rf.feature_importances_
+        features = X.columns
+
+        plt.figure(figsize=(10, 6))
+        indices = np.argsort(feature_importances)[::-1]
+        plt.barh(features[indices], feature_importances[indices], color='skyblue')
+        plt.xlabel('Relative Importance')
+        plt.ylabel('Features')
+        plt.show()
+  - cellType: CODE
+    cellId: a7845a96-3645-43d2-8d92-43119fef0a5f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        # Residuals plot
+        residuals = y_test - y_test_pred
+
+        plt.figure(figsize=(8, 6))
+        plt.scatter(y_test_pred, residuals, alpha=0.7, color='orange')
+        plt.axhline(0, color='black', lw=2)
+        plt.title('Residuals vs Predicted Values')
+        plt.xlabel('Predicted')
+        plt.ylabel('Residuals')
+        plt.show()
+  - cellType: CODE
+    cellId: 21f276b7-ed92-4d74-8d1a-ed519c497c54 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        #NAIVE BAYES
+        # Import necessary libraries
+        import pandas as pd
+        from sklearn.model_selection import train_test_split, cross_val_score
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.metrics import mean_squared_error, r2_score
+
+        # Load dataset
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+
+        # Pre-process the data (handle missing values, convert data types)
+        df['larcPerPop'] = pd.to_numeric(df['larcPerPop'], errors='coerce')
+        df.dropna(inplace=True)  # Remove missing values for simplicity
+
+        # Prepare features and target variable
+        X = df[['population', 'medIncome', 'NumUnderPov',
+                 'racepctblack', 'racePctWhite', 'racePctAsian',
+                 'racePctHisp', 'PctUnemployed', 'PctEmploy']]
+        y = df['larcPerPop']
+
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Cross-validation
+        rf = RandomForestRegressor(random_state=42)
+        cv_scores = cross_val_score(rf, X_train, y_train, cv=5)
+
+        # Train the model
+        rf.fit(X_train, y_train)
+
+        # Predictions
+        y_pred = rf.predict(X_test)
+
+        # Evaluate the model
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        # Print results
+        print(f"Cross-validation scores: {cv_scores}")
+        print(f"Mean Squared Error: {mse}")
+        print(f"R-squared: {r2}")
+  - cellType: CODE
+    cellId: 311f9024-50f5-433f-9840-cf802cb16a8c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        from sklearn.linear_model import LinearRegression
+        from sklearn.model_selection import train_test_split, cross_val_score
+        from sklearn.metrics import mean_squared_error, r2_score
+        import pandas as pd
+
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+        df['larcPerPop'] = pd.to_numeric(df['larcPerPop'], errors='coerce')
+        df.dropna(inplace=True)
+
+        X = df[['population', 'medIncome', 'NumUnderPov', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'PctUnemployed', 'PctEmploy']]
+        y = df['larcPerPop']
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        lr = LinearRegression()
+
+        cv_scores = cross_val_score(lr, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+        mean_cv_score = -cv_scores.mean()  # Convert to positive MSE
+
+        lr.fit(X_train, y_train)
+
+        y_train_pred = lr.predict(X_train)
+        y_test_pred = lr.predict(X_test)
+
+        mse = mean_squared_error(y_test, y_test_pred)
+        r2 = r2_score(y_test, y_test_pred)
+
+
+        print(f'Linear Regression MSE: {mse}')
+        print(f'Linear Regression R²: {r2}')
+        print(f'Mean CV MSE: {mean_cv_score}')n
+  - cellType: CODE
+    cellId: 8e1a4489-9b72-4439-9f18-00f77c30f690 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.model_selection import train_test_split, cross_val_score
+        from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+        df['larcPerPop'] = pd.to_numeric(df['larcPerPop'], errors='coerce')
+        df.dropna(inplace=True)
+
+        df['larcHighLow'] = (df['larcPerPop'] > df['larcPerPop'].median()).astype(int)
+
+        X = df[['population', 'medIncome', 'NumUnderPov', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'PctUnemployed', 'PctEmploy']]
+        y = df['larcHighLow']  # Binary target for logistic regression
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        log_reg = LogisticRegression(max_iter=1000, random_state=42)
+
+        cv_scores = cross_val_score(log_reg, X_train, y_train, cv=5, scoring='accuracy')
+        mean_cv_score = cv_scores.mean()  # Accuracy score
+
+        log_reg.fit(X_train, y_train)
+
+        y_train_pred = log_reg.predict(X_train)
+        y_test_pred = log_reg.predict(X_test)
+
+        accuracy = accuracy_score(y_test, y_test_pred)
+        class_report = classification_report(y_test, y_test_pred)
+
+        print(f'Logistic Regression Accuracy: {accuracy}')
+        print(f'Mean CV Accuracy: {mean_cv_score}')
+        print('Confusion Matrix:')
+        print(confusion_matrix(y_test, y_test_pred))
+        print()
+        print('Classification Report:')
+        print(class_report)
+  - cellType: CODE
+    cellId: 400bc248-e0bd-401c-ba9e-7bb63f8a08c8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        import pandas as pd
+        import numpy as np
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import KMeans
+        from sklearn.metrics import silhouette_score, silhouette_samples
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        import matplotlib.cm as cm
+
+        df = pd.read_csv('crimedata2.csv', encoding="latin1")
+
+        predictor_columns = ['population', 'medIncome', 'NumUnderPov', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'PctUnemployed', 'PctEmploy']
+        X = df[predictor_columns]
+
+        y = df['larcPerPop']
+
+        X = X.dropna()
+
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        inertia = []
+        k_range = range(1, 11)
+        for k in k_range:
+            kmeans = KMeans(n_clusters=k, random_state=42)
+            kmeans.fit(X_scaled)
+            inertia.append(kmeans.inertia_)
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(k_range, inertia, '-o')
+        plt.xlabel('Number of Clusters (k)')
+        plt.ylabel('Inertia')
+        plt.show()
+
+        optimal_k = 3
+        kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+        clusters = kmeans.fit_predict(X_scaled)
+
+        df['Cluster'] = clusters
+
+        sil_score = silhouette_score(X_scaled, clusters)
+        print(f"Silhouette Score: {sil_score}")
+
+        plt.figure(figsize=(8, 5))
+        sns.scatterplot(x=X_scaled[:, 0], y=X_scaled[:, 1], hue=clusters, palette='viridis', s=100)
+        plt.xlabel(f'{predictor_columns[0]} (scaled)')
+        plt.ylabel(f'{predictor_columns[1]} (scaled)')
+        plt.show()
+
+        sil_values = silhouette_samples(X_scaled, clusters)
+        plt.figure(figsize=(10, 7))
+        y_lower = 10
+        for i in range(optimal_k):
+            ith_cluster_sil_values = sil_values[clusters == i]
+            ith_cluster_sil_values.sort()
+            size_cluster_i = ith_cluster_sil_values.shape[0]
+            y_upper = y_lower + size_cluster_i
+            color = cm.nipy_spectral(float(i) / optimal_k)
+            plt.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_sil_values, facecolor=color, edgecolor=color, alpha=0.7)
+            plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+            y_lower = y_upper + 10
+        plt.axvline(x=sil_score, color="red", linestyle="--")
+        plt.xlabel("Silhouette Coefficient")
+        plt.ylabel("Cluster")
+        plt.show()
+
+        cluster_summary = df.groupby('Cluster')[predictor_columns + ['larcPerPop']].mean()
+        print(cluster_summary)
+
+        # Convert 'larcPerPop' to numeric, forcing non-numeric values to NaN
+        df['larcPerPop'] = pd.to_numeric(df['larcPerPop'], errors='coerce')
+
+        # Drop rows with NaN values in 'larcPerPop'
+        df = df.dropna(subset=['larcPerPop'])
+
+        # Check if there are still NaNs or non-numeric values in 'larcPerPop'
+        print(df['larcPerPop'].isna().sum())
+
+        # Now, safely apply pd.qcut
+        df['larcPerPop_bin'] = pd.qcut(df['larcPerPop'], q=3, labels=['Low', 'Medium', 'High'])
+        cluster_larceny_relation = pd.crosstab(df['Cluster'], df['larcPerPop_bin'])
+        print(cluster_larceny_relation)
+appLayout:
+  visibleMetadataFields:
+    - NAME
+    - DESCRIPTION
+    - AUTHOR
+    - LAST_EDITED
+    - LAST_RUN
+    - CATEGORIES
+    - STATUS
+    - TABLE_OF_CONTENTS
+  fullWidth: false
+  tabs:
+    - name: Tab 1
+      rows: []
+sharedFilters: []
